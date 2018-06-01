@@ -1,0 +1,30 @@
+import fetch from '@/utils/fetch'
+import qs from 'qs'
+export function fetchApproval() {
+  let data = {
+    userLogicId: '1ebcd180195a45568628c9d72a7a4333'
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: 'http://192.168.199.98:8086/user/selectApprover',
+    method: 'post',
+    data
+  })
+}
+export function addVacation(info) {
+  let data = {
+    tasktype: info.selectValue,
+    beginTime: info.startTime,
+    endTime: info.endTime,
+    lengthOfTime: info.reason,
+    cause: info.reason,
+    outgoingLocation: info.area,
+    uploadValue: info.uploadValue.join(',')
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: 'http://192.168.199.98:8086/task/insertSelective',
+    method: 'post',
+    data
+  })
+}

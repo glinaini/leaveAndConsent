@@ -1,0 +1,56 @@
+import fetch from '@/utils/fetch'
+import qs from 'qs'
+const HTTP = 'http://192.168.199.98:8086'
+export function fetchApproval() {
+  let data = {
+    userLogicId: '1ebcd180195a45568628c9d72a7a4333'
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/user/selectApprover`,
+    method: 'post',
+    data
+  })
+}
+export function addVacation(info) {
+  let data = {
+    tasktype: info.selectValue,
+    beginTime: info.startTime,
+    endTime: info.endTime,
+    lengthOfTime: info.reason,
+    cause: info.reason,
+    outgoingLocation: info.area,
+    uploadValue: info.uploadValue.join(',')
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/task/insertSelective`,
+    method: 'post',
+    data
+  })
+}
+// 请假明细列表接口
+export function fetchDetails () {
+  let data = {
+    applicantId: '3c8eaa6baf604bf5a21cb81edd1d3f54'
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/process/task/leaveDetailedCount`,
+    method: 'post',
+    data
+  })
+}
+// 选择请假类型后查看请假次数及时间
+export function recordVacation (taskType) {
+  let data = {
+    applicantId: '3c8eaa6baf604bf5a21cb81edd1d3f54',
+    taskType
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/process/task/leaveNumber`,
+    method: 'post',
+    data
+  })
+}

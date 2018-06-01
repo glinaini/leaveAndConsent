@@ -1,0 +1,220 @@
+<template>
+  <transition name="approval">
+    <div class="approval-wrapper">
+      <!-- <header-jt></header-jt> -->
+      <!-- 头 -->
+      <div class="subject-header">
+        <div class="icon" @click="back">
+          <i class="cubeic-back"></i>
+        </div>
+        <div class="processing" v-bind:key="title.id" v-for="title in tabs">
+          <div class="initiator" :class="{active:true}">{{title.title1}}({{title.number1}})</div>
+          <div class="strat-subject" :class="{active:false}">{{title.title2}}({{title.number2}})</div>
+          <div class="ended-subject" :class="{active:false}">{{title.title3}}({{title.number3}})</div>
+        </div>
+      </div>
+      <!-- 这是审批页面 -->
+      <div class="leaveSearch">
+        <label v-show="searchTExt" for="q" id="q_label">搜索</label>
+        <input id="q"  type="text" v-model="searchValue" v-on:focus="inputfocus" v-on:change="inputicon">
+        <i v-show="searchTExt" class="cubeic-search" id="q_i"></i>
+      </div>
+      <!-- 内容 -->
+      <div id="centent">
+        <h2 class="total">共1条</h2>
+        <div class="leavetenter" v-bind:key="item.id" v-for="item in InitiatingData">
+          <div class="name"><p class="leaveName">{{item.name}}的请假</p><p class="data">{{item.dataTime}}</p></div>
+          <div class="leaveType"><p>请假类型：</p><p>{{item.leaveType}}</p></div>
+          <div class="startTime"><p>开始时间：</p><p>{{item.startTime}}</p></div>
+          <div class="endedTime"><p>结束时间：</p><p>{{item.endedTime}}</p></div>
+          <div class="state">等待 {{item.state}} 审批中</div>
+        </div>
+      <div class="ending">已显示全部数据</div>
+      </div>
+
+    </div>
+  </transition>
+</template>
+
+<script>
+import headerJt from './header'
+export default {
+  components: {
+    headerJt
+  },
+  data () {
+    return {
+      searchValue: '',
+      searchTExt: true,
+      active: true,
+      num: 1,
+      tabs: [{
+        title1: '我发起的',
+        title2: '待我审批',
+        title3: '已审批',
+        number1: 2,
+        number2: 2,
+        number3: 2,
+        id: 1
+      }],
+      InitiatingData: [{
+        name: '王宇',
+        dataTime: '2018-5-17 10:30',
+        leaveType: '事假',
+        startTime: '2018-5-17 10:30',
+        endedTime: '2018-5-17 10:30',
+        state: '欧阳欢欢',
+        id: 1
+      }, {
+        name: '王宇',
+        dataTime: '2018-5-17 10:30',
+        leaveType: '事假',
+        startTime: '2018-5-17 10:30',
+        endedTime: '2018-5-17 10:30',
+        state: '欢欢',
+        id: 2
+      }],
+      waitData: [{}],
+      finishData: [{}]
+    }
+  },
+  methods: {
+    // 搜索框的点击 隐藏图标
+    inputfocus: function () {
+      if (this.searchValue === '') {
+        this.searchTExt = false
+      }
+    },
+    inputicon: function (searchValue) {
+      console.info(this.searchValue)
+      if (this.searchValue === '') {
+        this.searchTExt = true
+      }
+    },
+    back: function () {
+      this.$router.push({path: '/home'})
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+.approval-enter-active, .approval-leave-active
+  transition all 0.3s
+.approval-enter, .approval-leave-to
+  transform translate3d(100%, 0 , 0)
+.approval-wrapper
+  position fixed
+  left 0
+  right 0
+  bottom 0
+  top 0
+  background #eeeeee
+  .subject-header
+    text-align center
+    font-size 0
+    position relative
+    height 44px
+    background-color #ffffff
+    .icon
+      display inline-block
+      line-height 44px
+      vertical-align top
+      font-size 18px
+      position absolute
+      left 0
+      top 0
+    .processing
+      width 90%
+      height 100%
+      margin-left 30px
+      .initiator, .strat-subject, .ended-subject
+        height 100%
+        width 33%
+        color #999
+        font-size 16px
+        display inline-block
+        vertical-align top
+        line-height 44px
+      .active
+        color: #f60
+    .mine
+      position absolute
+      right 0
+      top 0
+      font-size 18px
+      display inline-block
+      vertical-align top
+      line-height 44px
+  .leaveSearch
+    position relative
+    height 44px
+    width 100%
+    background #f4f4f4
+    font-size 14px
+    text-align center
+    label
+      position absolute
+      left 50%
+      margin-left -5%
+      color #b2b2b2
+      top 35%
+    input
+      text-indent 10px
+      height 75%
+      width 90%
+      color #989898
+      border #eeeeee
+      border-radius: 5px;
+      margin-top 1%
+      text-align center
+    i
+      position absolute
+      top 35%
+      left 50%
+      margin-left -10%
+      color #b2b2b2
+  #centent
+    .total
+      text-align center
+      font-size 14px
+      color #666
+    .leavetenter
+      width 85%
+      border 1px solid #ccc
+      margin 5px auto 10px auto
+      padding 10px
+      background-color #ffffff
+      .name
+        position relative
+        padding-bottom 10px
+        .leaveName
+          font-size 22px
+        .data
+          position absolute
+          right 0
+          top 0
+          font-size 14px
+          color #ccc
+      .leaveType, .startTime,.endedTime
+        padding-bottom 5px
+        font-size 14px
+        p
+          display inline-block
+      .state
+        font-size 12px
+        padding-top 10px
+        color: #f60
+  .ending
+    position absolute
+    bottom 0
+    padding 5px
+    width 100%
+    text-align center
+    color #ccc
+    font-size 14px
+    z-index -1
+
+
+</style>
+

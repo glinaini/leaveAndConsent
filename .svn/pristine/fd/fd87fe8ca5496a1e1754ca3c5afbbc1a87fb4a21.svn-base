@@ -1,0 +1,72 @@
+<template>
+  <div class="wrapper">
+    <div v-for="item in person" :key="item" class="approver">
+      <div class="circle">{{ item.name }}</div>
+      <div class="myIcon" v-if="!item.last">>></div>
+      <div class="name">{{ item.name }}</div>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  data () {
+    return {
+      person: [{
+        name: '欧阳欢欢'
+      }, {
+        name: '李明'
+      }, {
+        name: '王崇明'
+      }, {
+        name: '王崇明'
+      }, {
+        name: '王崇明'
+      }, {
+        name: '王崇明',
+        last: true
+      }]
+    }
+  }
+}
+</script>
+<style lang="stylus" scoped>
+*
+  margin 0
+  .wrapper
+    width 100%
+    background white
+    .approver
+      width 120px
+      height 90px
+      text-align center
+      float left
+      .circle
+        float left
+        width 60px
+        height 60px
+        border-radius 50%
+        background blue
+        overflow hidden
+        text-overflow ellipsis
+        white-space nowrap
+        margin-left 10px
+        line-height 60px
+        color white
+      .name
+        float left
+        display inline-block
+        width 80px
+        height 30px
+        margin-right 0
+        line-height 30px
+        overflow hidden
+        text-overflow ellipsis
+        white-space nowrap
+      .myIcon
+        float right
+        display block
+        width 20px
+        height 90px
+        line-height 60px
+        margin-right 8px
+</style>

@@ -1,0 +1,16 @@
+<template>
+  <div class="vacation-container">
+    <header-jt></header-jt>
+
+
+    
+  </div>
+</template>
+<script>
+  import headerJt from './header'
+  export default {
+    components: {
+      headerJt
+    }
+  }
+</script>

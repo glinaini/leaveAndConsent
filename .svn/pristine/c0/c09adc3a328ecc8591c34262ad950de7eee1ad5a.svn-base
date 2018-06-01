@@ -1,0 +1,273 @@
+<template>
+  <!-- <div class="leaveDetails">请假详情页</div> -->
+  <transition name="leaveDetails">
+    <div class="leaveDetails-container">
+      <!-- 请假详情页 -->
+      <header-jt></header-jt>
+      <!-- 内容 -->
+      <cube-scroll :data="items" :options="options">
+        <leave-details-wapper v-bind:contentdetails="contentdetails"></leave-details-wapper>
+        <approval-process :process="process"></approval-process>
+        <cube-button class="revoke" v-show="contentdetails.taskState === '1'" @click="showBtn">撤销</cube-button>
+        <div class="opinion"  v-show="contentdetails.taskState === '5'">
+          <cube-button class="view" :light="true" v-on:click="viewOpinion">同意</cube-button>
+          <cube-button class="view" :light="true" v-on:click="refuseOpinion">拒绝</cube-button>
+        </div>
+        <div class="imgseal" v-show="contentdetails.taskState === '2'"><img src="@/assets/image/adopt.png" alt=""></div>
+        <div class="imgseal" v-show="contentdetails.taskState === '8'"><img src="@/assets/image/adopt.png" alt=""></div>
+        <div class="imgseal" v-show="contentdetails.taskState === '4'"><img src="@/assets/image/Failed.png" alt=""></div>
+        <div class="imgseal" v-show="contentdetails.taskState === '3'"><img src="@/assets/image/refuse.png" alt=""></div>
+        <div class="imgseal" v-show="contentdetails.taskState === '9'"><img src="@/assets/image/refuse.png" alt=""></div>
+        <div class="imgseal" v-show="contentdetails.taskState === '7'"><img src="@/assets/image/Revoke.png" alt=""></div>
+
+
+      </cube-scroll>
+    <div class="opinion-content" v-show="showopinion">
+      <div class="opinion-header">
+        <div class="icon" @click="opinionBack">
+          <i class="cubeic-back"></i>
+        </div>
+        <div class="title">请假明细</div>
+      </div>
+      <cube-textarea v-model="value" :maxlength="maxlength" :placeholder="placeholder" :autofocus="autofocus" ></cube-textarea>
+      <!-- <cube-textarea  v-model="value" :placeholder="placeholder" :maxlength="maxlength" :disabled="disabled" :autofocus="autofocus"></cube-textarea> -->
+      <cube-button v-show="!opinionBtn" class="opinionBtn" :light="true" @click="agreeopinion">确认同意</cube-button>
+      <cube-button v-show="!refuseOpinionBtn" class="opinionBtn" :light="true" @click="refuseopinion">确认拒绝</cube-button>
+    </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+import headerJt from './header'
+import leaveDetailsWapper from './leave-details-wapper'
+import approvalProcess from '@/view/vacation/notice/approval-process'
+import { leaveContent, opinion, Revoke } from '@/api/examine.js'
+const SUCCESS = '200'
+export default {
+  components: {
+    headerJt,
+    leaveDetailsWapper,
+    approvalProcess
+  },
+  data() {
+    return {
+      contentdetails: {},
+      process: [],
+      showopinion: false,
+      opinionBtn: true,
+      refuseOpinionBtn: true,
+      agreeopiniontype: 1,
+      refuseopiniontype: 2,
+      value: '',
+      placeholder: '请输入理由 限200字符内',
+      // readonly: false,
+      maxlength: 200,
+      autofocus: true,
+      items: [1, 2, 3, 4, 5],
+      options: {
+        scrollbar: {
+          fade: true
+        }
+      }
+    }
+  },
+  methods: {
+    getPersonalList: function () {
+      console.info(this.$route.params)
+      console.info(this.$route.params.id)
+      const data = {
+        id: this.$route.params.id,
+        type: this.$route.params.tabtype
+      }
+      leaveContent(data).then(res => {
+        res = res.data
+        if (res.state === SUCCESS) {
+          this.contentdetails = res.data
+          this.process = this.contentdetails.process
+          console.log(this.contentdetails)
+          // console.log(this.contentdetails.process)
+        }
+      })
+    },
+    // 同意
+    viewOpinion: function () {
+      console.info(12)
+      this.showopinion = !this.showopinion
+      this.opinionBtn = !this.opinionBtn
+    },
+    // 拒绝
+    refuseOpinion: function () {
+      this.showopinion = !this.showopinion
+      this.refuseOpinionBtn = !this.refuseOpinionBtn
+    },
+    // 同意与否意见
+    _opinion: function (opiniontype) {
+      // console.info(15)
+      let opiniondata = {
+        taskLogicId: this.contentdetails.id,
+        type: opiniontype,
+        opinion: this.value
+      }
+      opinion(opiniondata).then(res => {
+        console.info(res.data)
+      })
+    },
+    // 确认同意
+    agreeopinion: function () {
+      let opiniontype = this.agreeopiniontype
+      this._opinion(opiniontype)
+      this.showopinion = !this.showopinion
+      this.opinionBtn = !this.opinionBtn
+      this.$route.params.tabtype = '2'
+      this.getPersonalList()
+    },
+    // 拒绝
+    refuseopinion: function () {
+      let opiniontype = this.refuseopiniontype
+      this._opinion(opiniontype)
+      this.showopinion = !this.showopinion
+      this.refuseOpinionBtn = !this.refuseOpinionBtn
+      this.$route.params.tabtype = '2'
+      this.getPersonalList()
+    },
+    // 撤销
+    showBtn() {
+      this.$createDialog({
+        type: 'confirm',
+        content: '您确定要撤销申请吗？',
+        confirmBtn: {
+          text: '确定',
+          active: true,
+          disabled: false,
+          href: 'javascript:;'
+        },
+        cancelBtn: {
+          text: '取消',
+          active: false,
+          disabled: false,
+          href: 'javascript:;'
+        },
+        onConfirm: () => {
+          // this.$createToast({
+          //   // type: 'warn',
+          //   // time: 1000,
+          //   // txt: '点击确认按钮'
+          // }).show()
+          console.info(112)
+          // Revoke
+          let revoke = {
+            taskLogicId: this.contentdetails.id
+          }
+          Revoke(revoke).then(res => {
+            console.info(res)
+            this.$route.params.tabtype = '2'
+            this.getPersonalList()
+          })
+        },
+        onCancel: () => {
+          this.$createToast({
+            type: 'warn',
+            time: 1000,
+            txt: '点击取消按钮'
+          }).show()
+        }
+      }).show()
+    },
+    opinionBack () {
+      console.info(14)
+      this.showopinion = false
+      this.refuseOpinionBtn = true
+      this.opinionBtn = true
+    }
+  },
+  activated () {
+    this.getPersonalList()
+  }
+}
+</script>
+
+
+<style lang="stylus" scoped>
+.leaveDetails
+.leaveDetails-enter-active, .leaveDetails-leave-active
+  transition all .3s
+.leaveDetails-enter, .leaveDetails-leave-to
+  transform translate3d(100%, 0, 0)
+.leaveDetails-container
+  position fixed
+  left 0
+  top 0
+  right 0
+  bottom 0
+  background  #f3f3f3
+  padding-bottom 44px
+.revoke,.opinion
+  color #000
+  border-top 1px solid #000
+  background-color #ffffff
+.opinion
+  .view
+    color #000
+    display inline-block
+    width 49%
+  .view:first-child
+    border-right 1px solid #000
+.opinion-content
+  position absolute
+  top 0
+  left 0
+  width 100%
+  height 100%
+  background #f3f3f3
+  z-index 2
+  .opinion-header
+    text-align center
+    font-size 0
+    position relative
+    height 44px
+    background-color #ffffff
+    border-bottom 1px solid #000
+    .icon
+      display inline-block
+      line-height 44px
+      vertical-align top
+      font-size 18px
+      position absolute
+      left 0
+      top 0
+    .title
+      font-size 18px
+      display inline-block
+      vertical-align top
+      line-height 44px
+    
+    .mine
+      position absolute
+      right 0
+      top 0
+      font-size 18px
+      display inline-block
+      vertical-align top
+      line-height 44px
+  .cube-textarea-wrapper
+    position relative
+    -webkit-transition height 200ms
+    transition height 200ms
+    height 240px
+    font-size 14px
+    line-height 1.429
+    position relative
+  .opinionBtn
+    border-top 1px solid #000
+.imgseal
+  position absolute
+  top 0
+  right 0
+  margin 10px
+  img
+    width 100px
+    height 100px
+
+</style>
+

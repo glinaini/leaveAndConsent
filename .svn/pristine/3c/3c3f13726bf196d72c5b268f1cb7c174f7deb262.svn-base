@@ -1,0 +1,15 @@
+<template>
+  <div class="leavedetails">内容</div>
+</template>
+
+<script>
+export default {
+}
+</script>
+
+<style lang="stylus" scoped>
+.leavedetails
+  padding 10px
+</style>
+
+

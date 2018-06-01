@@ -1,0 +1,193 @@
+<template>
+  <div class="leavedetails">
+   <!-- 内容 -->
+   <div class="details">
+       <div class="name">
+           <div class="nameImg">{{contentdetails.name | nameFilt}}</div>
+           <div class="nametext" v-show="$route.params.tabtype === '0'"><p>{{contentdetails.name}}</p><p class="wait-p">等待 {{contentdetails.waitOpinion}} 审批中</p></div>
+           <div class="nametext" v-show="$route.params.tabtype === '1'"><p>{{contentdetails.name}}</p><p class="wait-p">等待<span> {{contentdetails.waitOpinion}}</span> 审批中</p></div>
+           <div class="nametext" v-show="$route.params.tabtype === '2'">
+             <p>{{contentdetails.name}}</p>
+             <p class="ended-wait adopt" v-show="contentdetails.taskState === '2'"> 审核通过 </p>
+             <p class="ended-wait failed" v-show="contentdetails.taskState === '4'"> 已失效 </p>
+             <p class="ended-wait refuse" v-show="contentdetails.taskState === '3'"> 审核拒绝 </p>
+             <p class="ended-wait revoke" v-show="contentdetails.taskState === '7'"> 已撤销 </p>
+           </div>
+           
+       </div>
+       <div class="details-content">
+           <div class="detailstext"><p>审批编号</p><p>{{contentdetails.taskNumber}}</p></div>
+           <div class="detailstext"><p>所在部门</p><p>{{contentdetails.department}}</p></div>
+           <div class="detailstext"><p>请假类型</p><p>{{contentdetails.type}}</p></div>
+           <div class="detailstext"><p>开始时间</p><p>{{contentdetails.startTime}}</p></div>
+           <div class="detailstext"><p>结束时间</p><p>{{contentdetails.endedTime}}</p></div>
+           <div class="detailstext"><p>时  长</p><p>{{contentdetails.timeLength}}</p></div>
+           <div class="detailstext Reason"><p>请假事由</p><p>{{contentdetails.leaveReason}}</p></div>
+           <div class="detailstext"><p>是否外出</p><p>{{contentdetails.goOut}}</p></div>
+           <!-- <div class="detailstext"><p>图  片</p><p><img :src="contentdetails.url" alt=""></p></div> -->
+           <div class="detailstext">
+             <p>图  片</p>
+             <p>
+               <!-- <img v-for="(item,index) in contentdetails.img" :key="index" :src="item" alt=""> -->
+               <!-- <img v-gallery="'group2'" v-for="(item,index) in contentdetails.img" :key="index" :src="item" class="thumbnail">  -->
+               <img v-gallery:group3 v-for="(item,index) in contentdetails.img" :key="index" :src="item" class="thumbnail"> 
+            </p>
+           </div>
+           <div class="leaveFrequency"><p>{{year}}年{{contentdetails.type}}已请<span class="number">{{contentdetails.number}}</span>次  共<span class="timeSum">{{contentdetails.timeSum}}</span>天</p><p @click="goRouter(contentdetails)">查看明细</p></div>
+       </div>
+   </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    contentdetails: {
+      type: Object,
+      default: function() {
+        return {}
+      }
+    }
+  },
+  data() {
+    return {
+      year: 2011,
+      detailsimg: [
+        { url: 'url' },
+        { url: 'url' },
+        { url: 'url' },
+        { url: 'url' },
+        { url: 'url' },
+        { url: 'url' }
+      ]
+    }
+  },
+  methods: {
+    newTime: function () {
+      var myDate = new Date()
+      var year = myDate.getYear()
+      var yea = year < 2000 ? year + 1900 : year
+      this.year = yea
+    },
+    goRouter (item) {
+      console.log(item)
+      this.$router.push({name: 'otherdetail', params: {applicantId: item.applicantId, type: this.$route.params.tabtype, name: this.contentdetails.name, taskType: item.type}})
+    }
+  },
+  created() {
+    this.newTime()
+  },
+  filters: {
+    nameFilt: function (name) {
+      console.log(name)
+      return name
+      // if (name.length > 2) {
+      //   name = name.substr(name.length - 2, name.length - 1)
+      //   return name
+      // } else {
+      //   return name
+      // }
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+.leavedetails
+  padding-bottom 10px
+  background-color #ffffff
+  margin-bottom: 11px;
+  .name
+    padding 10px
+    border 1px solid #000
+    border-left none
+    border-right none
+    .nameImg
+      width 60px
+      height 60px
+      margin-right 10px
+      display inline-block
+      background-color blue
+      border-radius 100%
+      text-align center
+      line-height 60px
+      color #ffffff
+    .nametext
+      height 60px
+      display inline-block
+      .wait-p
+        position relative
+        top 20px
+        font-size 14px
+        color #f60
+        span
+          color #008000
+      .ended-wait
+        position relative
+        top 20px
+        font-size 14px
+      .adopt
+        color #0f0
+      .revole, .failed
+        color #000
+      .refuse
+        color #f00
+   .details-content
+     padding 20px
+     .detailstext
+       position relative
+       padding-bottom 15px
+       font-size 16px
+       p
+         display inline-block
+       p:first-child
+         position absolute
+         top 0
+         width 20%
+         margin-right 5%
+         text-align right 
+         color #999
+       p:last-child
+         width 75%
+         margin-left 25%
+         text-alian left
+         word-break break-all
+        //  img
+        //    width 50px
+        //    height 50px
+        //    margin-right 10px 
+        //    border 1px solid #000
+        //    display inline-block
+        .thumbnail
+          display block
+          float left
+          margin 3px
+          height 50px
+          width 50px
+          object-fit cover
+     .Reason
+       p:last-child
+         line-height 20px
+     .leaveFrequency
+       margin 5px
+       padding 10px
+       font-size 14px
+       background #f3f3f3
+       border-radius 8px
+       p:first-child
+         text-align left 
+         display inline-block
+         .number
+           color #0f0
+         .timeSum
+           color #f60
+       p:last-child
+         position absolute
+         right 10%
+         color blue
+         display inline-block
+         
+       
+</style>
+
+

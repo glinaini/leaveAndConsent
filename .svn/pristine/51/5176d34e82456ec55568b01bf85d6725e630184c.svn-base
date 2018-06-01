@@ -1,0 +1,31 @@
+<template>
+  <div>
+  </div>
+</template>
+<script>
+export default {
+  methods: {
+    showDateTimePicker() {
+      if (!this.dateTimePicker) {
+        this.dateTimePicker = this.$createDatePicker({
+          min: new Date(2008, 7, 8, 8, 0, 0),
+          max: new Date(2020, 9, 20, 20, 59, 59),
+          value: new Date(),
+          columnCount: 6,
+          onSelect: this.selectHandle,
+          onCancel: this.cancelHandle
+        })
+      }
+    },
+    selectHandle(date, selectedVal, selectedText) {
+        this.$emit('select', selectedVal.join('-'))
+    },
+    cancelHandle() {
+    }
+  },
+  mounted () {
+    this.showDateTimePicker()
+  }
+}
+</script>
+

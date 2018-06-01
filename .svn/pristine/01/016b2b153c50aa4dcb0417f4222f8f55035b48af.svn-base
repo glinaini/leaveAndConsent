@@ -1,0 +1,317 @@
+<template>
+  <div class="vacation-wrapper">
+    <cube-form :model="model" :immediate-validate="false" @validate="validateHandler" @submit="submitHandler" @reset="resetHandler">
+      <cube-form-group>
+        <div class="title header-title" v-show="headerTitleShow">
+          <span class="header-title-left header-title-item">{{nowDate}}年{{headerTitle.taskType}}已请{{headerTitle.number}}次<span style="color: red; padding-left: 2px">{{headerTitle.timeSum}}</span>天</span>
+          <span class="header-title-right header-title-item" @click="showDetail">查看明细</span>
+          <div></div>
+        </div>
+      </cube-form-group>
+      <cube-form-group>
+        <cube-form-item :field="fields[0]"></cube-form-item>
+          <h1 class="title">请假时间</h1>
+        <cube-form-item :field="fields[1]">
+          <cube-button @click="showDatePicker('start')" class="btn">{{model.startTime || '请选择开始时间'}}</cube-button>
+          <date-picker ref="datePicker" @select="dateSelectHandler" :dateTypes="dateTypes"></date-picker>
+        </cube-form-item>
+        <cube-form-item :field="fields[2]">
+          <cube-button @click="showDatePicker('end')" class="btn">{{model.endTime || '请选择结束时间'}}</cube-button>
+          <date-picker ref="datePicker" @select="dateSelectHandler" :dateTypes="dateTypes"></date-picker>
+        </cube-form-item>
+        <!-- 时长 -->
+        <cube-form-item :field="fields[3]"></cube-form-item>
+        <h1 class="title">请假事由</h1>
+        <cube-form-item :field="fields[4]"></cube-form-item>
+        <cube-form-item :field="fields[5]"></cube-form-item>
+        <h1 class="title">图片(最多6张)</h1>
+        <cube-form-item :field="fields[6]"></cube-form-item>
+        <h1 class="title">审批人</h1>
+        <approver></approver>
+      </cube-form-group>
+      <cube-form-group>
+        <cube-button type="submit">提交</cube-button>
+      </cube-form-group>
+    </cube-form>
+  </div>
+</template>
+
+<script>
+  import datePicker from './datePicker'
+  import approver from './Approver'
+  import { addVacation, recordVacation } from '@/api/vacation'
+  import { countDate } from '@/utils/operation'
+  const SUCCESS_OK = '200'
+  export default {
+    data () {
+      return {
+        nowDate: new Date().getFullYear(),
+        headerTitleShow: false,
+        headerTitle: {
+          timeSum: 3,
+          number: 1,
+          taskType: '婚假'
+        },
+        dateTypes: 'start',
+        validity: {},
+        valid: undefined,
+        model: {
+          selectValue: '',
+          startTime: '',
+          endTime: '',
+          totaltime: '',
+          reason: '',
+          area: '',
+          uploadValue: []
+        },
+        fields: [{
+          type: 'select',
+          modelKey: 'selectValue',
+          label: '请假类型',
+          props: {
+            options: ['事假', '病假', '婚假', '丧假', '探亲假', '产假（护理假)', '计划生育假', '其他'],
+            placeholder: '请选择请假类型'
+          },
+          rules: {
+            required: true
+          },
+          events: {
+            change: (item) => {
+              this._recordVacation(item)
+            }
+          }
+        }, {
+          modelKey: 'startTime',
+          label: '开始时间',
+          rules: {
+            required: true
+          }
+        }, {
+          modelKey: 'endTime',
+          label: '结束时间',
+          rules: {
+            required: true
+          }
+        }, {
+          type: 'input',
+          modelKey: 'totaltime',
+          label: '时长',
+          props: {
+            placeholder: '最少0.5天',
+            disabled: true
+          },
+          rules: {
+            required: true
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'input',
+          modelKey: 'reason',
+          label: '请假事由',
+          props: {
+            placeholder: '请输入请假事由'
+          },
+          rules: {
+            required: true
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'input',
+          modelKey: 'area',
+          label: '外出地点',
+          props: {
+            placeholder: '请输入外出地点'
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'upload',
+          modelKey: 'uploadValue',
+          events: {
+            'file-removed': (...args) => {
+              console.log('file removed', args)
+            },
+            'file-success': (...args) => {
+              console.log('文件上传成功', args)
+            }
+          },
+          props: {
+            action: {
+              target: 'http://192.168.199.99:8686/process/Resources/save'
+            }
+          },
+          rules: {
+            uploaded: (val, config) => {
+              console.log(val)
+              return Promise.all(val.map((file, i) => {
+                return new Promise((resolve, reject) => {
+                  if (file.uploadedUrl) {
+                    // 文件以及存在了
+                    return resolve()
+                  }
+                  // fake request
+                  setTimeout(() => {
+                    if (i % 2) {
+                      reject(new Error())
+                    } else {
+                      file.uploadedUrl = 'uploaded/url'
+                      resolve()
+                    }
+                  }, 1000)
+                })
+              })).then(() => {
+                return true
+              })
+            }
+          },
+          messages: {
+            uploaded: '上传失败'
+          }
+        }]
+      }
+    },
+    methods: {
+      submitHandler(e) {
+        e.preventDefault()
+        console.log('submit', e)
+        this._addVacation()
+      },
+      showDetail() {
+        this.$router.push({path: '/vacation/detail/records'})
+      },
+      // 查看请假次数及时间
+      _recordVacation(name) {
+        recordVacation(name).then(res => {
+          res = res.data
+          if (res.state === SUCCESS_OK) {
+            // 如果查询是空
+            if (!res.data.taskType) {
+              this.headerTitleShow = false
+              return
+            }
+            this.headerTitleShow = true
+            this.headerTitle = res.data
+          }
+        })
+      },
+      // 点击提交按钮
+      _addVacation() {
+        addVacation(this.model).then(res => {
+          res = res.data
+          if (res.state === SUCCESS_OK) {
+            alert('成功')
+          }
+        })
+      },
+      validateHandler(result) {
+        this.validity = result.validity
+        this.valid = result.valid
+        console.log('validity', result.validity, result.valid, result.dirty, result.firstInvalidFieldIndex)
+      },
+      resetHandler(e) {
+        console.log('reset', e)
+      },
+      showDatePicker(type) {
+        if (this.model.selectValue) {
+          this.dateTypes = type
+          // 如果没有选择开始时间就选择结束时间
+          if (this.dateTypes === 'start') {
+            this.$refs.datePicker.dateTimePicker.show()
+          } else if (this.dateTypes === 'end') {
+            // 如果又开始时间
+            if (this.model.startTime) {
+              this.$refs.datePicker.dateTimePicker.show()
+            } else {
+              this.$createDialog({
+                type: 'alert',
+                title: '提示',
+                content: '请先选择开始时间'
+              }).show()
+            }
+          }
+        } else {
+          // 如果没有请假类型，就选择提示, 提示先选择请假类型
+          this.$createDialog({
+            type: 'alert',
+            title: '提示',
+            content: '请先选择请假类型'
+          }).show()
+        }
+      },
+      dateSelectHandler(selectedVal, date, hour) {
+        if (this.dateTypes === 'start') {
+          this.model.startTime = selectedVal
+          this.startDate = date
+          this.startTime = hour
+        } else {
+          // 当开始时间存在时
+          this.endDate = date
+          this.endTime = hour
+          // 计算请假的总共时间
+          let diff = countDate(this.startDate, this.endDate, this.startTime, this.endTime)
+          // 请假时长验证成功
+          if (diff.type) {
+            this.model.endTime = selectedVal
+            this.model.totaltime = diff.diff + '天'
+          } else {
+            // 如果没有请假类型，就选择提示, 提示先选择请假类型
+            this.$createDialog({
+              type: 'alert',
+              title: '提示',
+              content: diff.title
+            }).show()
+          }
+        }
+      }
+    },
+    components: {
+      datePicker, approver
+    }
+  }
+</script>
+
+
+<style lang="stylus" scoped>
+  .vacation-wrapper 
+    position fixed 
+    left 0 
+    right 0 
+    top 44px 
+    bottom 0 
+    background #fff 
+    overflow-y auto
+    &>>>input
+      text-align right
+    &>>>.cube-select
+      text-align right 
+    .title
+      margin 5px 0
+      background #f5f5f5
+      padding-left 5px
+    .btn
+      background #fff
+      color #999
+      text-align right 
+      outline none
+      border none
+    .header-title
+      box-sizing border-box
+      padding 0 5px
+      display flex
+      .header-title-item
+        display inline-block
+        box-sizing border-box
+      .header-title-left
+        overflow hidden
+        white-space nowrap
+        text-overflow ellipsis
+        text-align left 
+        flex 1
+      .header-title-right
+        text-align right
+        padding-right 5px
+        width 100px
+        color blue
+</style>

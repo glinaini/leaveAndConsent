@@ -1,0 +1,94 @@
+<template>
+  <div class="wrapper">
+    <message ref="message"></message>
+    <div class="text" @click="viewAll">全部请假记录（{{ allVacation }}）
+      <i class="cubeic-arrow"></i>
+    </div>
+    <table>
+      <tr class="tr" v-for="item in tableDate" :key="item.id">
+        <td class="tdLeft">{{ item.name }}</td>
+        <td class="tdRight">{{ item.number }}</td>
+      </tr>
+    </table>
+  </div>
+</template>
+<script>
+import message from '@/view/message'
+import { fetchDetails } from '@/api/vacation'
+const SUCCESS = '200'
+export default {
+  components: {
+    message
+  },
+  data () {
+    return {
+      tableDate: [],
+      allVacation: ''
+    }
+  },
+  methods: {
+    viewAll () {
+      this.$router.push({path: '/vacation/detail/records'})
+    },
+    _fetchDetails () {
+      fetchDetails().then(res => {
+        res = res.data
+        if (res.state === SUCCESS) {
+          this.tableDate = res.data.data
+          this.allVacation = res.data.allVacation
+        } else {
+          this.$refs.message.MessageError(res.message)
+        }
+      }).catch(e => {
+        this.$refs.message.MessageError(e)
+      })
+    }
+  },
+  created () {
+    this._fetchDetails()
+  }
+}
+</script>
+<style lang="stylus" scoped>
+.wrapper
+  position fixed
+  top 44px
+  left 0
+  right 0
+  bottom 0
+  width 100%
+  background white
+  overflow-y auto
+  .text
+    padding 0 20px
+    width 100%
+    box-sizing border-box
+    height 60px
+    line-height 60px
+    border-bottom 1px solid black
+    i
+      float right
+  table
+    width 100%
+    .tr
+      position relative
+      width 100%
+      height 60px
+      border-bottom 1px solid black
+      text-align center
+      line-height 60px
+      .tdLeft
+        width 35%
+        &:after
+          content ''
+          position absolute
+          left 38%
+          margin-top 7px
+          height 46px
+          width 2px
+          background-color black
+</style>
+
+
+
+

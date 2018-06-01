@@ -1,0 +1,42 @@
+<template>
+  <!-- <div class="leaveDetails">请假详情页</div> -->
+  <transition name="leaveDetails">
+    <div class="leaveDetails-container">
+      <!-- 请假详情页 -->
+      <header-jt></header-jt>
+      <!-- 内容 -->
+      <leave-details-wapper></leave-details-wapper>
+      <approval-process></approval-process>
+    </div>
+  </transition>
+</template>
+
+<script>
+import headerJt from './header'
+import leaveDetailsWapper from './leave-details-wapper'
+import approvalProcess from '@/view/vacation/notice/approval-process'
+export default {
+  components: {
+    headerJt,
+    leaveDetailsWapper,
+    approvalProcess
+  }
+}
+</script>
+
+
+<style lang="stylus" scoped>
+.leaveDetails
+.leaveDetails-enter-active, .leaveDetails-leave-active
+  transition all .3s
+.leaveDetails-enter, .leaveDetails-leave-to
+  transform translate3d(100%, 0, 0)
+.leaveDetails-container
+  position fixed
+  left 0
+  top 0
+  right 0
+  bottom 0
+  background  #a2aeb5
+</style>
+

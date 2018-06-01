@@ -1,0 +1,99 @@
+<template>
+  <div class="application">
+    <!-- 内容 -->
+    <cube-index-list :pullDownRefresh="pullDownRefresh" @pulling-down="onPullingDown" ref="indexList" :pullUpLoad="true" @pulling-up="onPullingUp">
+      <cube-index-list-group>
+        <cube-index-list-item v-bind:key="item.id" v-for="item in form.listData">
+          <div class="leavetenter" @click="details(item)">
+              <div class="name"><p class="leaveName">{{item.name}}的请假</p><p class="data">{{item.dataTime}}</p></div>
+              <div class="leaveType"><p>请假类型：</p><p>{{item.leaveType}}</p></div>
+              <div class="startTime"><p>开始时间：</p><p>{{item.startTime}}</p></div>
+              <div class="endedTime"><p>结束时间：</p><p>{{item.endedTime}}</p></div>
+              <div class="state">{{item.state}}</div>
+          </div>
+        </cube-index-list-item>
+      </cube-index-list-group>
+      <div class="lastText" v-if="form.downState">已显示全部数据</div>
+      <div class="lastText" v-if="!form.downState">上滑显示更多</div>
+    </cube-index-list>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    form: {}
+    // currentdatanew: {
+    //   type: Array,
+    //   required: true
+    // }
+  },
+  data () {
+    return {
+      pullDownRefresh: {
+        stop: 55,
+        txt: '刷新成功'
+      }
+    }
+  },
+  methods: {
+    // 搜索框的点击 隐藏图标
+    details: function (item) {
+      console.info(item)
+    },
+    onPullingDown() {
+      setTimeout(() => {
+        this.$refs.indexList.forceUpdate('数据更新')
+        // 下拉直接刷新整个页面
+        this.form.page = 1
+        this.$emit('update')
+      }, 1000)
+    },
+    onPullingUp() {
+      setTimeout(() => {
+        this.$refs.indexList.forceUpdate('数据更新')
+        // 上拉继续加载分页，新拿到的data push到listData
+        this.form.page ++
+        this.$emit('pullup')
+      }, 1000)
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+.application
+  position relative
+  height 100%
+  .leavetenter
+    width 85%
+    border 1px solid #ccc
+    margin 5px auto 10px auto
+    padding 10px
+    background-color #ffffff
+    .name
+      position relative
+      padding-bottom 10px
+      .leaveName
+        font-size 22px
+      .data
+        position absolute
+        right 0
+        top 0
+        font-size 14px
+        color #ccc
+    .leaveType, .startTime,.endedTime
+      padding-bottom 5px
+      font-size 14px
+      p
+        display inline-block
+    .state
+      font-size 12px
+      padding-top 10px
+      color: #f60
+  .lastText
+    text-align center
+    width 100%
+    font-size 12px
+    color #999
+</style>

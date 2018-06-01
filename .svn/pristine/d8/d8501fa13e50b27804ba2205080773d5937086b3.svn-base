@@ -1,0 +1,46 @@
+import fetch from '@/utils/fetch'
+import qs from 'qs'
+const HTTP = 'http://192.168.199.98:8086'
+// const HTTP = 'http://192.168.30.177:8086'
+
+// 请假列表
+export function sendoutleave (dataType) {
+  let data = {
+    id: 'a1c36de01e1d4a6c86bd287827ec5a83',
+    type: dataType.type,
+    taskType: dataType.taskType,
+    pageNum: dataType.pageNum,
+    pageSize: dataType.pageSize
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/process/task/leaveList`,
+    method: 'post',
+    data
+  })
+}
+// 请假详情
+export function leaveContent (contentdata) {
+  let data = {
+    id: contentdata.id,
+    type: contentdata.type
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/process/task/leaveDetail`,
+    method: 'post',
+    data
+  })
+}
+// 审批时分类计数
+export function leavenumber () {
+  let data = {
+    userLogicId: 'a1c36de01e1d4a6c86bd287827ec5a83'
+  }
+  data = qs.stringify(data)
+  return fetch({
+    url: `${HTTP}/process/task/typeCount`,
+    method: 'post',
+    data
+  })
+}

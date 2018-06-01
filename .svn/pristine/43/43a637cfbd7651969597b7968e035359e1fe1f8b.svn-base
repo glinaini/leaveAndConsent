@@ -1,0 +1,27 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import home from '@/view/home/index'
+import vacation from '@/view/vacation/index'
+import approval from '@/view/approval/index'
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/home',
+      name: 'home',
+      component: home
+    }, {
+      path: '/',
+      redirect: '/home'
+    }, {
+      path: '/vacation',
+      name: 'vacation',
+      component: vacation
+    }, {
+      path: '/approval',
+      name: 'approval',
+      component: approval
+    }
+  ]
+})

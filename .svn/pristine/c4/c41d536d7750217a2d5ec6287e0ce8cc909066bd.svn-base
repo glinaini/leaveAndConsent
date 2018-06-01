@@ -1,0 +1,74 @@
+<template>
+  <div class="vacation-wrapper">
+    <cube-form :model="model" :schema="schema" :immediate-validate="false" :options="options" @validate="validateHandler" @submit="submitHandler"
+      @reset="resetHandler"></cube-form>
+  </div>
+</template>
+
+<script>
+  export default {
+    data () {
+      return {
+        validity: {},
+        valid: undefined,
+        model: {
+          selectValue: ''
+        },
+        schema: {
+          groups: [
+            {
+              fields: [{
+                type: 'select',
+                modelKey: 'selectValue',
+                label: '请假类型',
+                props: {
+                  options: ['事假', '其它', '婚假']
+                }
+              }]
+            },
+            {
+              fields: [{
+                type: 'submit',
+                label: 'Submit'
+              },
+              {
+                type: 'reset',
+                label: 'Reset'
+              }]
+            }
+          ]
+        },
+        options: {
+          scrollToInvalidField: true,
+          layout: 'standard' // classic fresh
+        }
+      }
+    },
+    methods: {
+      submitHandler (e) {
+        e.preventDefault()
+        console.log('submit', e)
+      },
+      validateHandler (result) {
+        this.validity = result.validity
+        this.valid = result.valid
+        console.log('validity', result.validity, result.valid, result.dirty, result.firstInvalidFieldIndex)
+      },
+      resetHandler (e) {
+        console.log('reset', e)
+      }
+    }
+  }
+</script>
+
+
+<style lang="stylus" scoped>
+  .vacation-wrapper 
+    position fixed 
+    left 0 
+    right 0 
+    top 44px 
+    bottom 0 
+    background #ccc
+
+</style>

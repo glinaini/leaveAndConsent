@@ -1,0 +1,38 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import home from '@/view/home/index'
+import vacation from '@/view/vacation/index'
+import approval from '@/view/approval/index'
+import vacationDetail from '@/view/vacation/detail/index'
+import vacationNotice from '@/view/vacation/notice/index'
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/home',
+      name: 'home',
+      component: home
+    }, {
+      path: '/',
+      redirect: '/home'
+    }, {
+      path: '/vacation',
+      name: 'vacation',
+      component: vacation,
+      children: [
+        {
+          path: 'detail',
+          component: vacationDetail
+        }, {
+          path: 'notice',
+          component: vacationNotice
+        }
+      ]
+    }, {
+      path: '/approval',
+      name: 'approval',
+      component: approval
+    }
+  ]
+})

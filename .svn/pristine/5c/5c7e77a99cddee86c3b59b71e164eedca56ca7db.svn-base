@@ -1,0 +1,208 @@
+<template>
+  <div class="vacation-wrapper">
+    <cube-form :model="model" :immediate-validate="false" @validate="validateHandler" @submit="submitHandler" @reset="resetHandler">
+      <cube-form-group>
+        <cube-form-item :field="fields[0]"></cube-form-item>
+          <h1 class="title">请假时间</h1>
+        <cube-form-item :field="fields[1]">
+          <cube-button @click="showDatePicker('one')" class="btn">{{model.startTime || '请选择开始时间'}}</cube-button>
+          <date-picker ref="datePicker" @select="dateSelectHandler"></date-picker>
+        </cube-form-item>
+        <cube-form-item :field="fields[2]">
+          <cube-button @click="showDatePicker('two')" class="btn">{{model.endTime || '请选择结束时间'}}</cube-button>
+          <date-picker ref="datePicker" @select="dateSelectHandler"></date-picker>
+        </cube-form-item>
+        <!-- 时长 -->
+        <cube-form-item :field="fields[3]"></cube-form-item>
+        <h1 class="title">请假事由</h1>
+        <cube-form-item :field="fields[4]"></cube-form-item>
+        <cube-form-item :field="fields[5]"></cube-form-item>
+        <h1 class="title">图片(最多6张)</h1>
+        <cube-form-item :field="fields[6]"></cube-form-item>
+        <h1 class="title">审批人</h1>
+        <approver></approver>
+      </cube-form-group>
+      <cube-form-group>
+        <cube-button type="submit">提交</cube-button>
+      </cube-form-group>
+    </cube-form>
+  </div>
+</template>
+
+<script>
+  import datePicker from './datePicker'
+  import approver from './Approver'
+  import { addVacation } from '@/api/vacation'
+  const SUCCESS_OK = '200'
+  export default {
+    data () {
+      return {
+        types: 'one',
+        validity: {},
+        valid: undefined,
+        model: {
+          selectValue: '',
+          startTime: '',
+          endTime: '',
+          totaltime: '',
+          reason: '',
+          area: '',
+          uploadValue: []
+        },
+        fields: [{
+          type: 'select',
+          modelKey: 'inputValue',
+          label: '请假类型',
+          props: {
+            options: ['事假', '其它', '婚假'],
+            placeholder: '请选择请假类型'
+          },
+          rules: {
+            required: true
+          }
+        }, {
+          modelKey: 'startTime',
+          label: '开始时间',
+          rules: {
+            required: true
+          }
+        }, {
+          modelKey: 'endTime',
+          label: '结束时间',
+          rules: {
+            required: true
+          }
+        }, {
+          type: 'input',
+          modelKey: 'totaltime',
+          label: '时长',
+          props: {
+            placeholder: '最少0.5天'
+          },
+          rules: {
+            required: true
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'input',
+          modelKey: 'reason',
+          label: '请假事由',
+          props: {
+            placeholder: '请输入请假事由'
+          },
+          rules: {
+            required: true
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'input',
+          modelKey: 'area',
+          label: '外出地点',
+          props: {
+            placeholder: '请输入外出地点'
+          },
+          // validating when blur
+          trigger: 'blur'
+        }, {
+          type: 'upload',
+          modelKey: 'uploadValue',
+          events: {
+            'file-removed': (...args) => {
+              console.log('file removed', args)
+            }
+          },
+          rules: {
+            uploaded: (val, config) => {
+              return Promise.all(val.map((file, i) => {
+                return new Promise((resolve, reject) => {
+                  if (file.uploadedUrl) {
+                    return resolve()
+                  }
+                  // fake request
+                  setTimeout(() => {
+                    if (i % 2) {
+                      reject(new Error())
+                    } else {
+                      file.uploadedUrl = 'uploaded/url'
+                      resolve()
+                    }
+                  }, 1000)
+                })
+              })).then(() => {
+                return true
+              })
+            }
+          },
+          messages: {
+            uploaded: '上传失败'
+          }
+        }]
+      }
+    },
+    methods: {
+      submitHandler(e) {
+        e.preventDefault()
+        console.log('submit', e)
+        this._addVacation()
+      },
+      _addVacation() {
+        addVacation(this.model).then(res => {
+          res = res.data
+          if (res.state === SUCCESS_OK) {
+            alert('成功')
+          }
+        })
+      },
+      validateHandler(result) {
+        this.validity = result.validity
+        this.valid = result.valid
+        console.log('validity', result.validity, result.valid, result.dirty, result.firstInvalidFieldIndex)
+      },
+      resetHandler(e) {
+        console.log('reset', e)
+      },
+      showDatePicker(type) {
+        this.types = type
+        this.$refs.datePicker.dateTimePicker.show()
+      },
+      dateSelectHandler(selectedVal) {
+        if (this.types === 'one') {
+          this.model.startTime = selectedVal
+        } else {
+          this.model.endTime = selectedVal
+        }
+      }
+    },
+    components: {
+      datePicker, approver
+    }
+  }
+</script>
+
+
+<style lang="stylus" scoped>
+  .vacation-wrapper 
+    position fixed 
+    left 0 
+    right 0 
+    top 44px 
+    bottom 0 
+    background #fff 
+    overflow-y auto
+    &>>>input
+      text-align right
+    &>>>.cube-select
+      text-align right 
+    .title
+      margin 5px 0
+      background #f5f5f5
+      padding-left 5px
+    .btn
+      background #fff
+      color #999
+      text-align right 
+      outline none
+      border none 
+</style>

@@ -1,0 +1,23 @@
+<template>
+  <div class="wrapper">
+    这是全部请假页面
+  </div>
+</template>
+<script>
+export default {
+  data () {
+    return {}
+  },
+  methods: {}
+}
+</script>
+<style lang="stylus" scoped>
+.wrapper
+  position fixed
+  top 44px
+  left 0
+  right 0
+  bottom 0
+  width 100%
+  background white
+</style>

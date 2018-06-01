@@ -1,0 +1,194 @@
+<template>
+  <!-- <div class="leaveDetails">请假详情页</div> -->
+  <transition name="leaveDetails">
+    <div class="leaveDetails-container">
+      <!-- 请假详情页 -->
+      <header-jt></header-jt>
+      <!-- 内容 -->
+      <cube-scroll :data="items" :options="options">
+        <leave-details-wapper v-bind:contentdetails="contentdetails"></leave-details-wapper>
+        <approval-process></approval-process>
+        <cube-button class="revoke" v-show="$route.params.tabtype === '0'" @click="showBtn">撤销</cube-button>
+        <div class="opinion" v-show="$route.params.tabtype === '1'">
+          <cube-button class="view" :light="true" v-on:click="viewOpinion">同意</cube-button>
+          <cube-button class="view" :light="true">拒绝</cube-button>
+        </div>
+    </cube-scroll>
+    <div class="opinion-content" v-show="showopinion">
+      <div class="opinion-header">
+        <div class="icon" @click="opinionBack">
+          <i class="cubeic-back"></i>
+        </div>
+        <div class="title">请假明细</div>
+      </div>
+      <cube-textarea  v-model="value" :placeholder="placeholder" :maxlength="maxlength" :disabled="disabled" :autofocus="autofocus"></cube-textarea>
+    </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+import headerJt from './header'
+import leaveDetailsWapper from './leave-details-wapper'
+import approvalProcess from '@/view/vacation/notice/approval-process'
+import { leaveContent } from '@/api/examine.js'
+const SUCCESS = '200'
+export default {
+  components: {
+    headerJt,
+    leaveDetailsWapper,
+    approvalProcess
+  },
+  data() {
+    return {
+      contentdetails: {},
+      process: [],
+      showopinion: false,
+      value: '',
+      placeholder: '请输入内容',
+      // readonly: false,
+      maxlength: 100,
+      disabled: true,
+      autofocus: true,
+      items: [1, 2, 3, 4, 5],
+      options: {
+        scrollbar: {
+          fade: true
+        }
+      }
+    }
+  },
+  methods: {
+    getPersonalList: function () {
+      console.info(this.$route.params)
+      console.info(this.$route.params.id)
+      const data = {
+        id: this.$route.params.id,
+        type: this.$route.params.tabtype
+      }
+      leaveContent(data).then(res => {
+        res = res.data
+        if (res.state === SUCCESS) {
+          this.contentdetails = res.data
+          this.process = this.contentdetails.process
+          console.log(this.contentdetails)
+          console.log(this.contentdetails.process)
+        }
+      })
+    },
+    // 同意
+    viewOpinion: function () {
+      console.info(12)
+      this.showopinion = !this.showopinion
+    },
+    showBtn() {
+      this.$createDialog({
+        type: 'confirm',
+        // icon: 'cubeic-alert',
+        // title: '我是标题',
+        content: '您确定要撤销申请吗？',
+        confirmBtn: {
+          text: '确定',
+          active: true,
+          disabled: false,
+          href: 'javascript:;'
+        },
+        cancelBtn: {
+          text: '取消',
+          active: false,
+          disabled: false,
+          href: 'javascript:;'
+        },
+        onConfirm: () => {
+          this.$createToast({
+            type: 'warn',
+            time: 1000,
+            txt: '点击确认按钮'
+          }).show()
+        },
+        onCancel: () => {
+          this.$createToast({
+            type: 'warn',
+            time: 1000,
+            txt: '点击取消按钮'
+          }).show()
+        }
+      }).show()
+    },
+    opinionBack () {
+      console.info(14)
+      this.showopinion = !this.showopinion
+    }
+  },
+  activated () {
+    this.getPersonalList()
+  }
+}
+</script>
+
+
+<style lang="stylus" scoped>
+.leaveDetails
+.leaveDetails-enter-active, .leaveDetails-leave-active
+  transition all .3s
+.leaveDetails-enter, .leaveDetails-leave-to
+  transform translate3d(100%, 0, 0)
+.leaveDetails-container
+  position fixed
+  left 0
+  top 0
+  right 0
+  bottom 0
+  background  #f3f3f3
+  padding-bottom 44px
+.revoke,.opinion
+  color #000
+  border-top 1px solid #000
+  background-color #ffffff
+.opinion
+  .view
+    color #000
+    display inline-block
+    width 49%
+  .view:first-child
+    border-right 1px solid #000
+.opinion-content
+  position absolute
+  top 0
+  left 0
+  width 100%
+  min-height 50%
+  background #ccc
+  z-index 2
+  .opinion-header
+    text-align center
+    font-size 0
+    position relative
+    height 44px
+    background-color #ffffff
+    border-bottom 1px solid #000
+    .icon
+      display inline-block
+      line-height 44px
+      vertical-align top
+      font-size 18px
+      position absolute
+      left 0
+      top 0
+    .title
+      font-size 18px
+      display inline-block
+      vertical-align top
+      line-height 44px
+    
+    .mine
+      position absolute
+      right 0
+      top 0
+      font-size 18px
+      display inline-block
+      vertical-align top
+      line-height 44px
+
+</style>
+

@@ -1,0 +1,85 @@
+<template>
+  <div class="wrapper">
+    <!-- 这里是审批流程 -->
+    <div class="all" v-for="(list, index) in process" :key="index">
+      <div class="container" v-for="(item, index) in list" :key="index">
+        <div class="radius" :class="index < list.length -1 ? 'after': ''">{{item.name}}</div>
+        <div class="text-container">
+          <div class="name"><span>{{item.name}}</span><span :class="item.text === '审批中'? 'red': ''">{{item.text}}</span></div>
+          <div class="state">{{item.state}}</div>
+        </div>
+        <!-- <div v-if="!(index === list.length-1)">丨</div> -->
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  props: {
+    process: {
+      type: Array,
+      default: function() {
+        return [[{
+          name: '汪宇',
+          text: '发起了审批',
+          state: ''
+        }, {
+          name: '欢欢',
+          text: '已同意',
+          state: '批准请假'
+        }], [{
+          name: '汪宇',
+          text: '发起了审批',
+          state: ''
+        }, {
+          name: '欢欢',
+          text: '审批中',
+          state: ''
+        }]]
+      }
+    }
+  },
+  data () {
+    return {}
+  }
+}
+</script>
+<style lang="stylus" scoped>
+.wrapper 
+  width 100%
+  background white
+  .all
+    width 100%
+    height auto
+    display flex
+    flex-direction row
+    flex-wrap wrap
+    .container
+      width 100%
+      display flex
+      height 90px
+      .radius
+        color white
+        height 60px
+        width 60px
+        line-height 60px
+        text-align center
+        border-radius 50%
+        background-color blue
+      .after:after
+        content ''
+        width 0px
+        height 28px
+        position absolute
+        left 30px
+        margin-top  60px
+        border 2px dashed black
+      .text-container
+        padding 13px 0 0 10px
+        .name
+          .red
+            color red
+        .state
+          margin-top 5px
+</style>
+

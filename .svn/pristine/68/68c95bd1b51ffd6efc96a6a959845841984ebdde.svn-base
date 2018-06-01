@@ -1,0 +1,36 @@
+<template>
+  <div class="hello">
+    <div>
+      <cube-button @click="showToast('vacation/index')">请假</cube-button>
+      <cube-button @click="showToast('approval')">审批</cube-button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    showToast (item) {
+      this.$router.push({path: `/${item}`})
+    }
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h1, h2 {
+  font-weight: normal;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>

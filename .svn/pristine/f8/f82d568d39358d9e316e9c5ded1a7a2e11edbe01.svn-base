@@ -1,0 +1,16 @@
+<template>
+  <div class="box">
+    <slot-scope>{{ content }}</slot-scope>
+  </div>
+</template>
+<script>
+  export default {
+    data () {
+      return {
+        content: '测试弹出框'
+      }
+    }
+  }
+</script>
+<style>
+</style>

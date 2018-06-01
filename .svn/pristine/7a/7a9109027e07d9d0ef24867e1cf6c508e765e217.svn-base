@@ -1,0 +1,70 @@
+<template>
+    <div class="detail-wrapper">
+      <my-header :title="title"></my-header>
+      <div class="container">
+        <records-list :form="form"  @update='fetchRecord' @pullup='pullup'></records-list>
+        <!-- <div class="show-more">上拉显示更多</div> -->
+        <div class="show-more">已显示全部</div>
+      </div>
+    </div>
+</template>
+
+<script>
+import myHeader from './header'
+import recordsList from './records-list'
+export default {
+  components: {
+    myHeader, recordsList
+  },
+  data () {
+    return {
+      title: {
+        name: '事假'
+      },
+      form: [{
+        id: '6f9a5c995fa94279bb9b583414fe46c5',
+        startTime: '2018-05-17 10:30',
+        endedTime: '2018-05-17 12:30',
+        name: '汪宇',
+        state: '等待欧阳欢欢审批中',
+        dataTime: '2018-05-26 17:03:26',
+        leaveType: '事假'
+      }, {
+        id: '68f36c20d0834e67940a85431ecf5afe',
+        startTime: '2018-05-17 10:30',
+        endedTime: '2018-05-17 12:30',
+        name: '汪宇',
+        state: '等待欧阳欢欢审批中',
+        dataTime: '2018-05-26 16:54:44',
+        leaveType: '事假'
+      }]
+    }
+  }
+}
+</script>
+
+
+<style lang="stylus" scoped>
+.detail-wrapper
+  position fixed
+  left 0
+  top 0
+  right 0
+  bottom 0
+  background  #a2aeb5
+  .container
+    position fixed
+    top 44px
+    left 0
+    right 0
+    bottom 0
+    width 100%
+    background white
+    .show-more
+      position relative
+      bottom 30px
+      text-align center
+      color #999
+      font-size 12px
+      z-index 11
+</style>
